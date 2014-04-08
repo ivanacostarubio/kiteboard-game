@@ -12,20 +12,3 @@ class Boton < Joybox::Core::Sprite
 end
 
 
-class Kiter < Joybox::Core::Sprite
-
-  def move_up
-    puts "Moving up"
-    run_action Move.by position: [0,50], duration: 1
-  end
-
-  def move_down
-    puts "Moving  Down"
-    run_action Move.by position: [0,-50], duration: 1
-  end
-
-  def crash
-    file_name = "crash1.png"
-  end
-end
-
