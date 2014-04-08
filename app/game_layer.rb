@@ -3,6 +3,7 @@ class GameLayer < Joybox::Core::Layer
 
   def on_enter
     self << BackgroundLayer.new
+    # TODO: Create a layer that represents our Score Board.
 
     @score = 0
     @landed = false
@@ -17,8 +18,7 @@ class GameLayer < Joybox::Core::Layer
     end
 
     @kite_change_side_observer = App.notification_center.observe 'ChangeSideToLeft' do |notification|
-
-      @kiter.move_up 
+      @kiter.move_up
       flip_kiter(false)
     end
 
@@ -30,16 +30,7 @@ class GameLayer < Joybox::Core::Layer
   end
 
   def kiter_land
-    #
-    # Create a more accurate function that represents 
-    # how to land.
-    #
-    puts "Kiter Position #{@kiter.position.inspect}"
-    @landed = true if @kiter.position.y >= initial_y
-  end
-
-  def initial_y
-    @initial_y + 100
+    @kiter.land
   end
 
   def add_buttons
@@ -55,9 +46,10 @@ class GameLayer < Joybox::Core::Layer
 
   def add_elements
    @kiter = Kiter.new(file_name: 'kiter.png', position: [Screen.center.x, 120], alive: true)
-    self << @kiter
-    @kiter.move_up
-    @kiter.move_up
+   self << @kiter
+   @kiter.move_up
+   @kiter.move_up
+
 
 
     @score_label = Label.new position: [ Screen.center.x , Screen.center.y * 1.8 ], font_size: 16, font_name: "Helvetica"
@@ -65,35 +57,14 @@ class GameLayer < Joybox::Core::Layer
 
     self << @score_label
 
-    puts "*" * 100
-    puts Screen.center.inspect
-    puts Screen.center.y.inspect
-    puts Screen.height.inspect
-  end
+ end
 
   def kiter_jump
-    # We add the coordinates from where we started the jump
-    @initial_y = position.y 
-
-    @landed = false
+    # TODO: Eliminate that R
+    # TODO: Add Score only if Kiter Landed properly
     r = rand(300)
-    r += 150 if r < 150
-    j = Jump.by position: [0, 0], height: r, duration: 2
-    jump = Sequence.with actions: [j, Callback.with(&landing_sprite)]
-    @kiter.file_name = "raley.png"
-    @kiter.run_action(jump)
+    @kiter.jump(r)
     add_to_score(r + @score)
-  end
-
-  def landing_sprite
-    Proc.new do 
-      if @landed
-        @kiter.file_name = "kiter.png"
-      else
-        @kiter.file_name = "crash1.png"
-        crash 
-      end
-    end
   end
 
   def crash
@@ -111,6 +82,6 @@ class GameLayer < Joybox::Core::Layer
   end
 
   def kiter_trick
-    puts "Haciendo un truco"
+    @kiter.trick
   end
 end

@@ -11,12 +11,7 @@ class BackgroundLayer < Joybox::Core::Layer
 
     schedule_update do |dt|
       add_clouds if rand(50) == 1
-      background_rotation @background
     end
-  end
-
-  def background_rotation(bg)
-    #puts bg.position.inspect
   end
 
   def add_clouds
@@ -33,30 +28,27 @@ class BackgroundLayer < Joybox::Core::Layer
     self << @background
   end
 
-  def move_back
-    Proc.new do 
-      App.notification_center.post 'ChangeSideToRight'
-
-      move = Move.by position: [-550,0], duration: 10
-      bg_s = Sequence.with actions: [move, Callback.with(&move_in)]
-      @background.run_action bg_s
-    end
-  end
-
-  def move_in
-    Proc.new do 
-      App.notification_center.post 'ChangeSideToLeft'
-
-      move = Move.by position: [550,0], duration: 10
-      bg_s = Sequence.with actions: [move, Callback.with(&move_back)]
-      @background.run_action bg_s
-    end
-  end
-
   def setup_audio
     background_audio = BackgroundAudio.new
     background_audio[:bg] = 'bg.mp3'
     background_audio.play(:bg)
+  end
+
+  def move_back
+    abstract_move('ChangeSideToRight', -550)
+  end
+
+  def move_in
+    abstract_move('ChangeSideToLeft', '550')
+  end
+
+  def abstract_move(orientation,x)
+    Proc.new do
+      App.notification_center.post orientation
+      move = Move.by position: [x,0], duration: 10
+      bg_s = Sequence.with actions: [move, Callback.with(&move_back)]
+      @background.run_action bg_s
+    end
   end
 
 end
